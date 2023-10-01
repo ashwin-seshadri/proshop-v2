@@ -1,6 +1,6 @@
 import express from "express";
 import {
-    loginUser,
+    authUser,
     registerUser,
     logoutUser,
     getUserProfile,
@@ -18,7 +18,7 @@ router
     .route("/")
     .get(protect, admin, getUsers)
     .post(registerUser);
-router.post("/login", loginUser);
+router.post("/auth", authUser);
 router.post("/logout", logoutUser);
 router
     .route("/profile")

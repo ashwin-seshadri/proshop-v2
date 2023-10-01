@@ -1,11 +1,31 @@
-import { Badge, Nav, Navbar, Container, NavLink } from 'react-bootstrap';
+import { Badge, Nav, Navbar, Container, NavLink, NavDropdown } from 'react-bootstrap';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
 import { LinkContainer } from'react-router-bootstrap';
-import { UseSelector, useSelector } from 'react-redux/es/hooks/useSelector';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import logo from '../assets/logo.png';
+import { useLogoutMutation } from '../slices/usersApiSlice';
+import { logout } from '../slices/authSlice';
 
 const Header = () => {
     const { cartItems } = useSelector((state) => state.cart);
+    const { userInfo } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const [logoutApi] = useLogoutMutation();
+
+
+    const logoutHandler = async () => {
+        try {
+            await logoutApi().unwrap();
+            dispatch(logout());
+            navigate('/login');
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
   return (
     <header>
         <Navbar bg='dark' variant='dark' expand='md' collapseOnSelect>
@@ -20,19 +40,31 @@ const Header = () => {
                 <Navbar.Collapse id='basic-navbar-nav'>
                     <Nav className='ms-auto'>
                         <LinkContainer to="/cart">
-                        <NavLink>
-                            <FaShoppingCart/>
-                            { cartItems.length > 0 && (
-                                <Badge pill bg='success' style={{ marginLeft: '5px'}}>
-                                    {cartItems.reduce((a,c) => a + c.qty, 0)}
-                                </Badge>)
-                            }
-                            Cart
-                        </NavLink>
+                            <NavLink>
+                                <FaShoppingCart/>
+                                { cartItems.length > 0 && (
+                                    <Badge pill bg='success' style={{ marginLeft: '5px'}}>
+                                        {cartItems.reduce((a,c) => a + c.qty, 0)}
+                                    </Badge>)
+                                }
+                                Cart
+                            </NavLink>
                         </LinkContainer>
+                        { userInfo ? (
+                            <NavDropdown title={userInfo.name} id = 'username'>
+                                <LinkContainer to='/profile'>
+                                    <NavDropdown.Item>Profile</NavDropdown.Item>
+                                </LinkContainer>
+                                <NavDropdown.Item onClick={logoutHandler}>
+                                    Logout
+                                </NavDropdown.Item>
+                            </NavDropdown>
+                        ) : (
                         <LinkContainer to="/login">
-                        <NavLink><FaUser/>Sign In</NavLink>
+                            <NavLink><FaUser/>Sign In</NavLink>
                         </LinkContainer>
+                        )}
+                        
                     </Nav>
                 </Navbar.Collapse>
             </Container>
