@@ -1,1 +1,1 @@
-# proshop-v2
+# Recreating Brad Traversy's proshop-v2
